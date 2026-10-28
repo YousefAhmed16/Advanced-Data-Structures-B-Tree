@@ -9,6 +9,8 @@ struct Node
     Type key[Ord];
 
     Node(bool leaf, int n) : is_leaf(leaf), num_keys(n) {}
+
+    virtual ~Node() = default;
 };
 
 template <typename Type, int Ord>
@@ -20,7 +22,7 @@ struct LeafNode : public Node<Type, Ord>
 template <typename Type, int Ord>
 struct InternalNode : public Node<Type, Ord>
 {
-    Node<Type, Ord> *child[Ord + 1];
+    Node<Type, Ord> *child[Ord + 1] = {};
 
     InternalNode(int n) : Node<Type, Ord>(false, n) {}
 };
@@ -28,10 +30,14 @@ struct InternalNode : public Node<Type, Ord>
 template <typename Type, int Ord>
 struct BTree
 {
-    InternalNode<Type, Ord> *root = nullptr;
+    Node<Type, Ord> *root = nullptr;
 
     void display_all_inorder(Node<Type, Ord> *node)
     {
+        if (node == nullptr)
+        {
+            return;
+        }
         for (int i = 0; i < node->num_keys; i++)
         {
             if (!node->is_leaf)
@@ -85,6 +91,32 @@ struct BTree
         auto internal = static_cast<InternalNode<Type, Ord> *>(node);
         return search(key, internal->child[i]);
     }
+
+    // Recursively delete the tree
+    void delete_tree(Node<Type, Ord> *node)
+    {
+        if (node == nullptr)
+            return;
+
+        if (!node->is_leaf)
+        {
+            auto internal =
+                static_cast<InternalNode<Type, Ord> *>(node);
+
+            for (int i = 0; i <= node->num_keys; i++)
+            {
+                delete_tree(internal->child[i]);
+            }
+        }
+
+        delete node;
+    }
+
+    // Destructor to clean up the tree with the delete tree function
+    ~BTree()
+    {
+        delete_tree(root);
+    }
 };
 
 int main()
@@ -92,9 +124,9 @@ int main()
     BTree<int, 3> tree;
 
     // Create the root
-    tree.root = new InternalNode<int, 3>(2);
-    tree.root->key[0] = 20;
-    tree.root->key[1] = 40;
+    auto root = new InternalNode<int, 3>(2);
+    root->key[0] = 20;
+    root->key[1] = 40;
 
     // Create the leaf nodes
     auto left = new LeafNode<int, 3>(2);
@@ -110,9 +142,12 @@ int main()
     right->key[1] = 60;
 
     // Connect the children
-    tree.root->child[0] = left;
-    tree.root->child[1] = middle;
-    tree.root->child[2] = right;
+    root->child[0] = left;
+    root->child[1] = middle;
+    root->child[2] = right;
+
+    // Set the root of the tree
+    tree.root = root;
 
     // test search function
     cout << tree.search(25) << endl;   // 1 => found
