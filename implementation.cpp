@@ -2,36 +2,78 @@
 using namespace std;
 
 template <typename Type, int Ord>
-struct Node{
+struct Node {
     bool is_leaf;
     int num_keys;
     Type key[Ord];
+
+    Node(bool leaf, int n) : is_leaf(leaf), num_keys(n) {}
 };
 
 template <typename Type, int Ord>
-struct LeafNode:public Node<Type, Ord>{
-
+struct LeafNode : public Node<Type, Ord> {
+    LeafNode(int n) : Node<Type, Ord>(true, n) {}
 };
 
 template <typename Type, int Ord>
-struct InternalNode:public Node<Type, Ord>{
-    Node<Type, Ord>* child[Ord+1];
+struct InternalNode : public Node<Type, Ord> {
+    Node<Type, Ord>* child[Ord + 1];
+
+    InternalNode(int n) : Node<Type, Ord>(false, n) {}
 };
 
 template <typename Type, int Ord>
-struct BTree{
-    InternalNode<Type, Ord>* root;
+struct BTree {
+    InternalNode<Type, Ord>* root = nullptr;
 
-    void display_all_inorder(auto root){
-        for (int i = 0; i < root.num_keys; i++){
-            if (!root.is_leaf) display_all_inorder(root.child[i]);
-            cout << root.key[i] << " ";
+    void display_all_inorder(Node<Type, Ord>* node) {
+        for (int i = 0; i < node->num_keys; i++) 
+        {
+            if (!node->is_leaf) 
+            {
+                auto internal = static_cast<InternalNode<Type, Ord>*>(node);
+                display_all_inorder(internal->child[i]);
+            }
+            cout << node->key[i] << " ";
         }
-        if (!root.is_leaf) display_all_inorder(root.child[root.num_keys]);
+        if (!node->is_leaf) 
+        {
+            auto internal = static_cast<InternalNode<Type, Ord>*>(node);
+            display_all_inorder(internal->child[node->num_keys]);
+        }
     }
 };
 
 int main() {
-    
+    BTree<int, 3> tree;
+
+    // Create the root
+    tree.root = new InternalNode<int, 3>(2);
+    tree.root->key[0] = 20;
+    tree.root->key[1] = 40;
+
+    // Create the leaf nodes
+    auto left = new LeafNode<int, 3>(2);
+    left->key[0] = 5;
+    left->key[1] = 10;
+
+    auto middle = new LeafNode<int, 3>(2);
+    middle->key[0] = 25;
+    middle->key[1] = 30;
+
+    auto right = new LeafNode<int, 3>(2);
+    right->key[0] = 50;
+    right->key[1] = 60;
+
+    // Connect the children
+    tree.root->child[0] = left;
+    tree.root->child[1] = middle;
+    tree.root->child[2] = right;
+
+    // Test the traversal
+    cout << "Inorder traversal: ";
+    tree.display_all_inorder(tree.root);
+    cout << endl;
+
     return 0;
 }
