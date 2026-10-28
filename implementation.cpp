@@ -2,7 +2,8 @@
 using namespace std;
 
 template <typename Type, int Ord>
-struct Node {
+struct Node
+{
     bool is_leaf;
     int num_keys;
     Type key[Ord];
@@ -11,40 +12,83 @@ struct Node {
 };
 
 template <typename Type, int Ord>
-struct LeafNode : public Node<Type, Ord> {
+struct LeafNode : public Node<Type, Ord>
+{
     LeafNode(int n) : Node<Type, Ord>(true, n) {}
 };
 
 template <typename Type, int Ord>
-struct InternalNode : public Node<Type, Ord> {
-    Node<Type, Ord>* child[Ord + 1];
+struct InternalNode : public Node<Type, Ord>
+{
+    Node<Type, Ord> *child[Ord + 1];
 
     InternalNode(int n) : Node<Type, Ord>(false, n) {}
 };
 
 template <typename Type, int Ord>
-struct BTree {
-    InternalNode<Type, Ord>* root = nullptr;
+struct BTree
+{
+    InternalNode<Type, Ord> *root = nullptr;
 
-    void display_all_inorder(Node<Type, Ord>* node) {
-        for (int i = 0; i < node->num_keys; i++) 
+    void display_all_inorder(Node<Type, Ord> *node)
+    {
+        for (int i = 0; i < node->num_keys; i++)
         {
-            if (!node->is_leaf) 
+            if (!node->is_leaf)
             {
-                auto internal = static_cast<InternalNode<Type, Ord>*>(node);
+                auto internal = static_cast<InternalNode<Type, Ord> *>(node);
                 display_all_inorder(internal->child[i]);
             }
             cout << node->key[i] << " ";
         }
-        if (!node->is_leaf) 
+        if (!node->is_leaf)
         {
-            auto internal = static_cast<InternalNode<Type, Ord>*>(node);
+            auto internal = static_cast<InternalNode<Type, Ord> *>(node);
             display_all_inorder(internal->child[node->num_keys]);
         }
     }
+
+    bool search(Type key)
+    {
+        return search(key, root);
+    }
+
+    bool search(Type key, Node<Type, Ord> *node)
+    {
+        if (node == nullptr)
+        {
+            return false;
+        }
+
+        int i = 0;
+        while (i < node->num_keys)
+        {
+            if (key == node->key[i])
+            {
+                return true;
+            }
+            else if (key > node->key[i])
+            {
+                i++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (node->is_leaf)
+        {
+            return false;
+        }
+
+        auto internal = static_cast<InternalNode<Type, Ord> *>(node);
+        return search(key, internal->child[i]);
+    }
 };
 
-int main() {
+int main()
+{
     BTree<int, 3> tree;
 
     // Create the root
@@ -69,6 +113,10 @@ int main() {
     tree.root->child[0] = left;
     tree.root->child[1] = middle;
     tree.root->child[2] = right;
+
+    // test search function
+    cout << tree.search(25) << endl;   // 1 => found
+    cout << tree.search(1000) << endl; // 0 => not found
 
     // Test the traversal
     cout << "Inorder traversal: ";
