@@ -117,14 +117,21 @@ struct BTree
 
     if (child->is_leaf)
     {
-      LeafNode<Type, Ord> *old_leaf = static_cast<LeafNode<Type, Ord> *>(child);
-      LeafNode<Type, Ord> *new_leaf = new LeafNode<Type, Ord>();
+      LeafNode<Type, Ord> *old_leaf =
+          static_cast<LeafNode<Type, Ord> *>(child);
 
-      new_leaf->num_keys = old_leaf->num_keys - mid_index;
+      LeafNode<Type, Ord> *new_leaf =
+          new LeafNode<Type, Ord>();
+
+      Type mid_key = old_leaf->keys[mid_index];
+
+      new_leaf->num_keys =
+          old_leaf->num_keys - mid_index - 1;
 
       for (int i = 0; i < new_leaf->num_keys; i++)
       {
-        new_leaf->keys[i] = old_leaf->keys[mid_index + i];
+        new_leaf->keys[i] =
+            old_leaf->keys[mid_index + 1 + i];
       }
 
       old_leaf->num_keys = mid_index;
@@ -141,7 +148,7 @@ struct BTree
         parent->keys[i] = parent->keys[i - 1];
       }
 
-      parent->keys[index] = new_leaf->keys[0];
+      parent->keys[index] = mid_key;
       parent->num_keys++;
     }
   }
@@ -243,7 +250,7 @@ int main() {
   tree.insert(11);
   tree.insert(14);
 
-  cout << tree.search(25) << endl; 
+  cout << tree.search(20) << endl; 
   cout << tree.search(1000) << endl;
 
   cout << "In-order traversal of the B-tree: ";
