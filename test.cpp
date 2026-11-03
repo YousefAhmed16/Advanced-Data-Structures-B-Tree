@@ -164,14 +164,14 @@ struct BTree
     {
       if (!node->is_leaf)
       {
-        auto internal = static_cast<InternalNode<Type, Ord> *>(node);
+        InternalNode<Type, Ord> *internal = static_cast<InternalNode<Type, Ord> *>(node);
         display_all_inorder(internal->child[i]);
       }
       cout << node->keys[i] << " ";
     }
     if (!node->is_leaf)
     {
-      auto internal = static_cast<InternalNode<Type, Ord> *>(node);
+      InternalNode<Type, Ord> *internal = static_cast<InternalNode<Type, Ord> *>(node);
       display_all_inorder(internal->child[node->num_keys]);
     }
   }
@@ -210,7 +210,7 @@ struct BTree
       return false;
     }
 
-    auto internal = static_cast<InternalNode<Type, Ord> *>(node);
+    InternalNode<Type, Ord> *internal = static_cast<InternalNode<Type, Ord> *>(node);
     return search(key, internal->child[i]);
   }
 
@@ -224,7 +224,7 @@ struct BTree
   {
     while (!node->is_leaf)
     {
-      auto internal =
+      InternalNode<Type, Ord> *internal =
           static_cast<InternalNode<Type, Ord>*>(node);
 
       node = internal->child[node->num_keys];
@@ -245,8 +245,8 @@ struct BTree
 
     if (!child->is_leaf)
     {
-      auto c = static_cast<InternalNode<Type, Ord>*>(child);
-      auto l = static_cast<InternalNode<Type, Ord>*>(left);
+      InternalNode<Type, Ord> *c = static_cast<InternalNode<Type, Ord>*>(child);
+      InternalNode<Type, Ord> *l = static_cast<InternalNode<Type, Ord>*>(left);
 
       for (int i = child->num_keys + 1; i > 0; i--)
         c->child[i] = c->child[i - 1];
@@ -275,8 +275,8 @@ struct BTree
 
     if (!child->is_leaf)
     {
-      auto c = static_cast<InternalNode<Type, Ord>*>(child);
-      auto r = static_cast<InternalNode<Type, Ord>*>(right);
+      InternalNode<Type, Ord> *c = static_cast<InternalNode<Type, Ord>*>(child);
+      InternalNode<Type, Ord> *r = static_cast<InternalNode<Type, Ord>*>(right);
 
       c->child[child->num_keys + 1] = r->child[0];
 
@@ -311,8 +311,8 @@ struct BTree
 
     if (!left->is_leaf)
     {
-      auto l = static_cast<InternalNode<Type, Ord>*>(left);
-      auto r = static_cast<InternalNode<Type, Ord>*>(right);
+      InternalNode<Type, Ord> *l = static_cast<InternalNode<Type, Ord>*>(left);
+      InternalNode<Type, Ord> *r = static_cast<InternalNode<Type, Ord>*>(right);
 
       for (int i = 0; i <= right->num_keys; i++)
       {
@@ -389,7 +389,7 @@ struct BTree
         return true;
       }
 
-      auto internal =
+      InternalNode<Type, Ord> *internal =
           static_cast<InternalNode<Type, Ord>*>(node);
 
       Type predecessor =
@@ -412,7 +412,7 @@ struct BTree
     if (node->is_leaf)
       return false;
 
-    auto internal =
+    InternalNode<Type, Ord> *internal =
         static_cast<InternalNode<Type, Ord>*>(node);
 
     bool deleted = delete_recursive(
@@ -447,7 +447,7 @@ struct BTree
       }
       else
       {
-        auto internal =
+        InternalNode<Type, Ord> *internal =
             static_cast<InternalNode<Type, Ord>*>(root);
 
         root = internal->child[0];
@@ -469,7 +469,7 @@ struct BTree
 
     if (!node->is_leaf)
     {
-      auto internal =
+      InternalNode<Type, Ord> *internal =
           static_cast<InternalNode<Type, Ord> *>(node);
 
       for (int i = 0; i <= node->num_keys; i++)
@@ -480,8 +480,7 @@ struct BTree
 
     delete node;
   }
-
-  // Destructor to clean up the tree with the delete tree function
+  
   ~BTree()
   {
     delete_tree(root);
