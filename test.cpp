@@ -59,7 +59,6 @@ struct BTree
       split_child(new_root, 0);
       root = new_root;
     }
-
     insert_non_full(root, key);
   }
 
@@ -72,7 +71,6 @@ struct BTree
       leaf->keys[index] = leaf->keys[index - 1];
       index--;
     }
-
     leaf->keys[index] = key;
     leaf->num_keys++;
   }
@@ -94,7 +92,6 @@ struct BTree
     {
       child_index--;
     }
-
     child_index++;
 
     if (internal->child[child_index]->num_keys == Ord)
@@ -106,49 +103,37 @@ struct BTree
         child_index++;
       }
     }
-
     insert_non_full(internal->child[child_index], key);
   }
 
   void split_child(InternalNode<Type, Ord> *parent, int index)
   {
     Node<Type, Ord> *child = parent->child[index];
-
     int mid_index = Ord / 2;
-
     if (child->is_leaf)
     {
       LeafNode<Type, Ord> *old_leaf =
           static_cast<LeafNode<Type, Ord> *>(child);
-
       LeafNode<Type, Ord> *new_leaf =
           new LeafNode<Type, Ord>();
-
       Type mid_key = old_leaf->keys[mid_index];
-
       new_leaf->num_keys =
           old_leaf->num_keys - mid_index - 1;
-
       for (int i = 0; i < new_leaf->num_keys; i++)
       {
         new_leaf->keys[i] =
             old_leaf->keys[mid_index + 1 + i];
       }
-
       old_leaf->num_keys = mid_index;
-
       for (int i = parent->num_keys; i > index; i--)
       {
         parent->child[i + 1] = parent->child[i];
       }
-
       parent->child[index + 1] = new_leaf;
-
       for (int i = parent->num_keys; i > index; i--)
       {
         parent->keys[i] = parent->keys[i - 1];
       }
-
       parent->keys[index] = mid_key;
       parent->num_keys++;
     }
@@ -187,7 +172,6 @@ struct BTree
     {
       return false;
     }
-
     int i = 0;
     while (i < node->num_keys)
     {
@@ -204,17 +188,14 @@ struct BTree
         break;
       }
     }
-
     if (node->is_leaf)
     {
       return false;
     }
-
     InternalNode<Type, Ord> *internal = static_cast<InternalNode<Type, Ord> *>(node);
     return search(key, internal->child[i]);
   }
 
-  // deletion
   int min_keys()
   {
     return ceil((Ord / 2.0))-1;
@@ -229,7 +210,6 @@ struct BTree
 
       node = internal->child[node->num_keys];
     }
-
     return node->keys[node->num_keys - 1];
   }
 
@@ -239,27 +219,20 @@ struct BTree
   {
     Node<Type, Ord>* child = parent->child[index];
     Node<Type, Ord>* left = parent->child[index - 1];
-
     for (int i = child->num_keys; i > 0; i--)
       child->keys[i] = child->keys[i - 1];
-
     if (!child->is_leaf)
     {
       InternalNode<Type, Ord> *c = static_cast<InternalNode<Type, Ord>*>(child);
       InternalNode<Type, Ord> *l = static_cast<InternalNode<Type, Ord>*>(left);
-
       for (int i = child->num_keys + 1; i > 0; i--)
         c->child[i] = c->child[i - 1];
-
       c->child[0] = l->child[left->num_keys];
       l->child[left->num_keys] = nullptr;
     }
-
     child->keys[0] = parent->keys[index - 1];
-
     parent->keys[index - 1] =
         left->keys[left->num_keys - 1];
-
     left->num_keys--;
     child->num_keys++;
   }
@@ -270,27 +243,19 @@ struct BTree
   {
     Node<Type, Ord>* child = parent->child[index];
     Node<Type, Ord>* right = parent->child[index + 1];
-
     child->keys[child->num_keys] = parent->keys[index];
-
     if (!child->is_leaf)
     {
       InternalNode<Type, Ord> *c = static_cast<InternalNode<Type, Ord>*>(child);
       InternalNode<Type, Ord> *r = static_cast<InternalNode<Type, Ord>*>(right);
-
       c->child[child->num_keys + 1] = r->child[0];
-
       for (int i = 0; i < right->num_keys; i++)
         r->child[i] = r->child[i + 1];
-
       r->child[right->num_keys] = nullptr;
     }
-
     parent->keys[index] = right->keys[0];
-
     for (int i = 0; i < right->num_keys - 1; i++)
       right->keys[i] = right->keys[i + 1];
-
     right->num_keys--;
     child->num_keys++;
   }
@@ -301,37 +266,27 @@ struct BTree
   {
     Node<Type, Ord>* left = parent->child[index];
     Node<Type, Ord>* right = parent->child[index + 1];
-
     int left_size = left->num_keys;
-
     left->keys[left_size] = parent->keys[index];
-
     for (int i = 0; i < right->num_keys; i++)
       left->keys[left_size + 1 + i] = right->keys[i];
-
     if (!left->is_leaf)
     {
       InternalNode<Type, Ord> *l = static_cast<InternalNode<Type, Ord>*>(left);
       InternalNode<Type, Ord> *r = static_cast<InternalNode<Type, Ord>*>(right);
-
       for (int i = 0; i <= right->num_keys; i++)
       {
         l->child[left_size + 1 + i] = r->child[i];
         r->child[i] = nullptr;
       }
     }
-
     left->num_keys += right->num_keys + 1;
-
     for (int i = index; i < parent->num_keys - 1; i++)
       parent->keys[i] = parent->keys[i + 1];
-
     for (int i = index + 1; i < parent->num_keys; i++)
       parent->child[i] = parent->child[i + 1];
-
     parent->child[parent->num_keys] = nullptr;
     parent->num_keys--;
-
     delete right;
   }
   
@@ -341,24 +296,20 @@ struct BTree
   {
     Node<Type, Ord>* child = parent->child[index];
     int minimum = min_keys();
-
     if (child->num_keys >= minimum)
       return;
-
     if (index > 0 &&
         parent->child[index - 1]->num_keys > minimum)
     {
       borrow_from_left(parent, index);
       return;
     }
-
     if (index < parent->num_keys &&
         parent->child[index + 1]->num_keys > minimum)
     {
       borrow_from_right(parent, index);
       return;
     }
-
     if (index > 0)
       merge_children(parent, index - 1);
     else
@@ -370,13 +321,11 @@ struct BTree
     const Type& key)
   {
     int index = 0;
-
     while (index < node->num_keys &&
            node->keys[index] < key)
     {
       index++;
     }
-
     if (index < node->num_keys &&
         node->keys[index] == key)
     {
@@ -384,46 +333,34 @@ struct BTree
       {
         for (int i = index; i < node->num_keys - 1; i++)
           node->keys[i] = node->keys[i + 1];
-
         node->num_keys--;
         return true;
       }
-
       InternalNode<Type, Ord> *internal =
           static_cast<InternalNode<Type, Ord>*>(node);
-
       Type predecessor =
           get_predecessor(internal->child[index]);
-
       node->keys[index] = predecessor;
-
       bool deleted = delete_recursive(
           internal->child[index], predecessor);
-
       if (deleted &&
           internal->child[index]->num_keys < min_keys())
       {
         fix_underflow(internal, index);
       }
-
       return deleted;
     }
-
     if (node->is_leaf)
       return false;
-
     InternalNode<Type, Ord> *internal =
         static_cast<InternalNode<Type, Ord>*>(node);
-
     bool deleted = delete_recursive(
         internal->child[index], key);
-
     if (deleted &&
         internal->child[index]->num_keys < min_keys())
     {
       fix_underflow(internal, index);
     }
-
     return deleted;
   }
 
@@ -431,16 +368,12 @@ struct BTree
   {
     if (root == nullptr)
       return false;
-
     bool deleted = delete_recursive(root, key);
-
     if (!deleted)
       return false;
-
     if (root->num_keys == 0)
     {
       Node<Type, Ord>* old_root = root;
-
       if (root->is_leaf)
       {
         root = nullptr;
@@ -449,38 +382,30 @@ struct BTree
       {
         InternalNode<Type, Ord> *internal =
             static_cast<InternalNode<Type, Ord>*>(root);
-
         root = internal->child[0];
         internal->child[0] = nullptr;
       }
-
       delete old_root;
     }
-
     return true;
   }
 
-
-  // Recursively delete the tree
   void delete_tree(Node<Type, Ord> *node)
   {
     if (node == nullptr)
       return;
-
     if (!node->is_leaf)
     {
       InternalNode<Type, Ord> *internal =
           static_cast<InternalNode<Type, Ord> *>(node);
-
       for (int i = 0; i <= node->num_keys; i++)
       {
         delete_tree(internal->child[i]);
       }
     }
-
     delete node;
   }
-  
+
   ~BTree()
   {
     delete_tree(root);
