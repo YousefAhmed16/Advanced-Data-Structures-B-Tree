@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cmath>
 
 using namespace std;
 
@@ -198,7 +197,7 @@ struct BTree
 
   int min_keys()
   {
-    return ceil((Ord / 2.0)) - 1;
+    return ((Ord + 2.0) - 1) / 2.0;
   }
 
   Type get_predecessor(Node<Type, Ord> *node)
